@@ -1,0 +1,2221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Animator Hub - GitHub for Animators</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="stylesheet" href="https://unpkg.com/swiper@8/swiper-bundle.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    * { font-family: 'Inter', sans-serif; }
+    
+    /* Enhanced glass effect */
+    .glass { 
+      background: rgba(255,255,255,0.1); 
+      backdrop-filter: blur(12px); 
+      border: 1px solid rgba(255,255,255,0.2);
+      transition: all 0.3s ease;
+    }
+    .dark .glass { 
+      background: rgba(0,0,0,0.3); 
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    /* Enhanced carousel cards */
+    .carousel-card { 
+      min-width: 280px; 
+      max-width: 350px; 
+      transition: all 0.3s ease;
+    }
+    .carousel-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+    }
+    
+    /* Enhanced timeline */
+    .timeline { 
+      border-left: 4px solid rgba(59, 130, 246, 0.3); 
+      position: relative;
+    }
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: -2px;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      background: linear-gradient(to bottom, #3b82f6, #8b5cf6, #06b6d4);
+      border-radius: 2px;
+    }
+    
+    /* Custom animations */
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    
+    .animate-fadeIn {
+      animation: fadeIn 0.3s ease-out;
+    }
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+    }
+    
+    .animate-fadeInUp { animation: fadeInUp 0.6s ease-out; }
+    .animate-pulse-slow { animation: pulse 2s infinite; }
+    .animate-float { animation: float 3s ease-in-out infinite; }
+    
+    /* Enhanced buttons */
+    .btn-primary {
+      background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(59, 130, 246, 0.3);
+    }
+    .btn-primary::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+      transition: left 0.5s;
+    }
+    .btn-primary:hover::before {
+      left: 100%;
+    }
+    
+    /* Enhanced project cards */
+    .project-card {
+      transition: all 0.3s ease;
+      border: 1px solid rgba(229, 231, 235, 0.5);
+    }
+    .project-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+      border-color: rgba(59, 130, 246, 0.3);
+    }
+    
+    /* Loading states */
+    .loading {
+      position: relative;
+      overflow: hidden;
+    }
+    .loading::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+      animation: loading 1.5s infinite;
+    }
+    @keyframes loading {
+      0% { left: -100%; }
+      100% { left: 100%; }
+    }
+    
+    /* Custom scrollbar */
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: #f1f1f1; }
+    ::-webkit-scrollbar-thumb { 
+      background: linear-gradient(135deg, #3b82f6, #8b5cf6); 
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover { background: linear-gradient(135deg, #2563eb, #7c3aed); }
+    
+    /* Dark mode scrollbar */
+    .dark ::-webkit-scrollbar-track { background: #374151; }
+    
+    /* Enhanced search */
+    .search-container {
+      position: relative;
+    }
+    .search-results {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+      z-index: 50;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+    .dark .search-results {
+      background: #374151;
+      border-color: #4b5563;
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-200">
+  <!-- HEADER -->
+  <!-- 🌟 Navbar -->
+<header class="flex justify-between items-center p-4 bg-gray-800 text-white">
+  <h1 class="text-xl font-bold">Animator Hub</h1>
+
+  <!-- User Profile Dropdown -->
+  <div class="relative">
+    <button id="profileBtn" class="flex items-center gap-2 bg-gray-700 px-3 py-2 rounded-lg hover:bg-gray-600">
+      <span id="userName">User</span>
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+      </svg>
+    </button>
+
+    <!-- Dropdown menu -->
+    <div id="profileMenu" class="hidden absolute right-0 mt-2 w-48 bg-gray-700 rounded-lg shadow-lg p-3 z-50">
+      <p id="userEmail" class="text-sm text-gray-300 mb-2"></p>
+      <button id="logoutBtn" class="w-full text-left px-3 py-2 bg-red-600 hover:bg-red-700 rounded text-white">Logout</button>
+    </div>
+  </div>
+</header>
+
+        
+      <!-- User Auth Section -->
+<div id="authButtons">
+  <a href="login.html" class="hidden sm:inline px-3 py-2 rounded-lg text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition">Login</a>
+  <a href="signup.html" class="px-4 py-2 rounded-xl btn-primary text-white text-sm font-medium hover:shadow-lg transition-all duration-200">Sign Up</a>
+</div>
+
+<!-- Profile Menu (hidden until login) -->
+<div id="profileMenu" class="hidden relative">
+  <button id="profileBtn" class="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600">
+    <div id="profileIcon" class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-bold"></div>
+    <span id="profileName" class="font-medium"></span>
+    <i class="fas fa-chevron-down text-xs"></i>
+  </button>
+
+  <!-- Dropdown -->
+  <div id="profileDropdown" class="hidden absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 shadow-lg rounded-lg overflow-hidden">
+    <a href="#" class="block px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700">My Projects</a>
+    <a href="#" class="block px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700">Settings</a>
+    <button id="logoutBtn" class="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700">Logout</button>
+  </div>
+</div>
+s        <!-- Mobile menu button -->
+        <button id="mobileMenuBtn" class="md:hidden p-2 rounded-lg glass">
+          <i class="fas fa-bars"></i>
+        </button>
+      </div>
+    </div>
+    
+    <!-- Mobile menu -->
+    <div id="mobileMenu" class="md:hidden hidden bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
+      <div class="container mx-auto px-4 py-4 space-y-2">
+        <a href="#popular" class="block px-4 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+          <i class="fas fa-fire mr-2"></i>Popular
+        </a>
+        <a href="#projects" class="block px-4 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+          <i class="fas fa-folder mr-2"></i>Projects
+        </a>
+        <a href="#uploader" class="block px-4 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+          <i class="fas fa-cloud-upload-alt mr-2"></i>Upload
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <section class="relative overflow-hidden bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+    <div class="container mx-auto px-4 py-20 flex flex-col lg:flex-row items-center gap-12">
+      <div class="lg:w-1/2 animate-fadeInUp">
+        <div class="inline-flex items-center px-3 py-1 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-sm font-medium mb-6">
+          <i class="fas fa-star mr-2"></i>Join 10,000+ Animators
+        </div>
+        <h1 class="text-5xl sm:text-6xl font-black leading-tight mb-6">
+          A GitHub for 
+          <span class="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent animate-pulse-slow">Animators</span>
+          <br>
+          <span class="text-3xl sm:text-4xl font-bold text-gray-600 dark:text-gray-300">version • collaborate • showcase</span>
+        </h1>
+        <p class="text-xl text-gray-600 dark:text-gray-300 mb-8 leading-relaxed">
+          Upload .blend, .aep, .mp4 or image sequences. Keep versions, review at timecodes, and showcase your portfolio with the animation community.
+        </p>
+        <div class="flex flex-col sm:flex-row gap-4 mb-8">
+          <button id="heroUploadBtn" class="px-8 py-4 btn-primary text-white font-bold text-lg rounded-xl hover:shadow-2xl transition-all duration-300">
+            <i class="fas fa-cloud-upload-alt mr-2"></i>Upload Project
+          </button>
+          <button id="exploreBtn" class="px-8 py-4 border-2 border-gray-300 dark:border-gray-600 rounded-xl text-gray-700 dark:text-gray-300 font-semibold text-lg hover:border-blue-500 hover:text-blue-600 dark:hover:text-blue-400 transition-all duration-300">
+            <i class="fas fa-compass mr-2"></i>Explore Projects
+          </button>
+        </div>
+        <div class="flex flex-wrap gap-3 text-sm">
+          <div class="flex items-center px-4 py-2 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300">
+            <i class="fas fa-file-video mr-2 text-blue-500"></i>
+            <span class="font-medium">Supports: .mp4 .mov .avi .mkv .gif</span>
+          </div>
+          <div class="flex items-center px-4 py-2 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300">
+            <i class="fas fa-cube mr-2 text-purple-500"></i>
+            <span class="font-medium">.blend .aep .psd .png .webp</span>
+          </div>
+          <div class="flex items-center px-4 py-2 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300">
+            <i class="fas fa-tools mr-2 text-green-500"></i>
+            <span class="font-medium">Blender, After Effects, Maya</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Project Files (rendered after upload) -->
+      <div id="projectFiles" class="mt-6 bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg">
+        <h3 class="text-lg font-semibold mb-4">Project Files</h3>
+        <div id="projectFilesList" class="space-y-2 text-sm text-gray-700 dark:text-gray-300">No files uploaded yet.</div>
+      </div>
+
+      <!-- Upload error area -->
+      <div id="uploadError" class="hidden fixed bottom-6 right-6 max-w-md p-4 rounded-lg bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-700 text-red-800 dark:text-red-200 shadow-lg"></div>
+
+      <!-- Enhanced hero visual -->
+      <div class="lg:w-1/2 w-full animate-fadeInUp">
+        <div class="relative">
+          <!-- Main preview card -->
+          <div class="rounded-2xl overflow-hidden shadow-2xl bg-gradient-to-br from-white to-gray-100 dark:from-gray-800 dark:to-gray-700 border border-gray-200 dark:border-gray-600">
+            <div class="p-6">
+              <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center gap-3">
+                  <div class="w-3 h-3 bg-red-500 rounded-full"></div>
+                  <div class="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                  <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                </div>
+                <div class="text-sm text-gray-500 font-mono">00:15</div>
+              </div>
+              <div class="w-full h-64 bg-gradient-to-br from-gray-900 to-gray-700 rounded-lg flex items-center justify-center text-white relative overflow-hidden">
+                <div class="text-center">
+                  <i class="fas fa-play-circle text-6xl mb-4 opacity-80"></i>
+                  <p class="text-lg font-semibold">Sample Animation</p>
+                  <p class="text-sm opacity-70">Click to preview</p>
+                </div>
+                <!-- Animated background elements -->
+                <div class="absolute inset-0 opacity-20">
+                  <div class="absolute top-4 left-4 w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
+                  <div class="absolute top-8 right-8 w-3 h-3 bg-purple-400 rounded-full animate-pulse" style="animation-delay: 0.5s;"></div>
+                  <div class="absolute bottom-6 left-8 w-2 h-2 bg-pink-400 rounded-full animate-pulse" style="animation-delay: 1s;"></div>
+                </div>
+              </div>
+              <div class="mt-4 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white text-xs font-bold">VK</div>
+              <div>
+                    <div class="font-semibold text-sm">@vivek</div>
+                    <div class="text-xs text-gray-500">2 days ago</div>
+              </div>
+            </div>
+                <div class="flex gap-2">
+                  <button class="px-3 py-1 bg-blue-600 text-white rounded-lg text-xs hover:bg-blue-700 transition-colors">
+                    <i class="fas fa-play mr-1"></i>Play
+                  </button>
+                  <button class="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-lg text-xs hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                    <i class="fas fa-heart mr-1"></i>Like
+                  </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+          <!-- Floating cards -->
+          <div class="absolute -top-4 -right-4 w-24 h-16 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-600 animate-float">
+            <div class="p-2 text-center">
+              <i class="fas fa-download text-green-500 text-lg"></i>
+              <div class="text-xs font-semibold mt-1">1.2k</div>
+            </div>
+          </div>
+          
+          <div class="absolute -bottom-4 -left-4 w-20 h-20 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-600 animate-float" style="animation-delay: 1s;">
+            <div class="p-2 text-center">
+              <i class="fas fa-star text-yellow-500 text-lg"></i>
+              <div class="text-xs font-semibold mt-1">4.8</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Enhanced animated background -->
+    <div class="absolute inset-0 overflow-hidden pointer-events-none">
+      <svg class="absolute right-0 top-0 opacity-5 w-96 h-96 animate-float" viewBox="0 0 600 600" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="300" cy="300" r="300" fill="url(#gradient1)" />
+        <defs>
+          <radialGradient id="gradient1">
+            <stop stop-color="#3b82f6" offset="0"/>
+            <stop stop-color="#8b5cf6" offset="0.5"/>
+            <stop stop-color="#06b6d4" offset="1"/>
+          </radialGradient>
+        </defs>
+    </svg>
+      
+      <svg class="absolute left-0 bottom-0 opacity-5 w-80 h-80 animate-float" style="animation-delay: 2s;" viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="200" cy="200" r="200" fill="url(#gradient2)" />
+        <defs>
+          <radialGradient id="gradient2">
+            <stop stop-color="#f59e0b" offset="0"/>
+            <stop stop-color="#ef4444" offset="0.5"/>
+            <stop stop-color="#ec4899" offset="1"/>
+          </radialGradient>
+        </defs>
+      </svg>
+    </div>
+  </section>
+
+  <!-- POPULAR CAROUSEL -->
+  <section id="popular" class="container mx-auto px-4 py-16">
+    <div class="flex items-center justify-between mb-8">
+      <div>
+        <h2 class="text-4xl font-bold mb-2">🔥 Popular Animations</h2>
+        <p class="text-gray-600 dark:text-gray-300">Top trending projects from the community</p>
+      </div>
+      <div class="flex gap-2">
+        <button class="px-4 py-2 rounded-lg bg-gray-100 dark:bg-gray-800 text-sm font-medium hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
+          <i class="fas fa-fire mr-1"></i>Trending
+        </button>
+        <button class="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+          <i class="fas fa-clock mr-1"></i>Recent
+        </button>
+      </div>
+    </div>
+
+    <div class="swiper-container">
+      <div class="swiper-wrapper">
+        <!-- Enhanced anime cards with better images -->
+        <div class="swiper-slide carousel-card p-4">
+          <div class="rounded-xl overflow-hidden shadow-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:shadow-2xl transition-all duration-300">
+            <div class="relative">
+              <img src="https://images.unsplash.com/photo-1532052860319-a9bbd4076394?w=400&h=225&fit=crop&crop=center" alt="Demon Slayer: Infinite Castle" class="w-full h-48 object-cover"/>
+              <div class="absolute top-3 left-3 px-2 py-1 bg-red-500 text-white text-xs font-bold rounded-full">
+                <i class="fas fa-fire mr-1"></i>HOT
+              </div>
+              <div class="absolute top-3 right-3 px-2 py-1 bg-black/50 text-white text-xs rounded-full">
+                <i class="fas fa-play mr-1"></i>2:45
+              </div>
+            </div>
+            <div class="p-4">
+              <div class="flex items-center gap-2 mb-2">
+                <div class="w-6 h-6 bg-gradient-to-r from-red-500 to-orange-500 rounded-full flex items-center justify-center text-white text-xs font-bold">DS</div>
+                <span class="text-sm text-gray-500">@infinite_castle</span>
+              </div>
+              <h3 class="font-bold text-lg mb-2">Demon Slayer — Infinite Castle</h3>
+              <p class="text-sm text-gray-600 dark:text-gray-300 mb-3">Stylized scene inspired by the Infinite Castle • 4K • 3 versions</p>
+              <div class="flex items-center justify-between">
+                <div class="flex gap-3 text-xs text-gray-500">
+                  <span><i class="fas fa-eye mr-1"></i>18.2k</span>
+                  <span><i class="fas fa-heart mr-1"></i>3.9k</span>
+                  <span><i class="fas fa-download mr-1"></i>1.1k</span>
+                </div>
+                <div class="flex gap-2">
+                  <button class="px-3 py-1 bg-blue-600 text-white rounded-lg text-xs hover:bg-blue-700 transition-colors">
+                    <i class="fas fa-play mr-1"></i>View
+                  </button>
+                  <button class="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-lg text-xs hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                    <i class="fas fa-code-branch mr-1"></i>Fork
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="swiper-slide carousel-card p-4">
+          <div class="rounded-xl overflow-hidden shadow-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:shadow-2xl transition-all duration-300">
+            <div class="relative">
+              <img src="https://images.unsplash.com/photo-1613376023733-0a73315d9b06?w=400&h=225&fit=crop&crop=center" alt="Attack on Titan Animation" class="w-full h-48 object-cover"/>
+              <div class="absolute top-3 left-3 px-2 py-1 bg-purple-500 text-white text-xs font-bold rounded-full">
+                <i class="fas fa-star mr-1"></i>FEATURED
+              </div>
+              <div class="absolute top-3 right-3 px-2 py-1 bg-black/50 text-white text-xs rounded-full">
+                <i class="fas fa-play mr-1"></i>1:45
+              </div>
+            </div>
+            <div class="p-4">
+              <div class="flex items-center gap-2 mb-2">
+                <div class="w-6 h-6 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white text-xs font-bold">AOT</div>
+                <span class="text-sm text-gray-500">@motion_master</span>
+              </div>
+              <h3 class="font-bold text-lg mb-2">AoT: 3D Motion Study</h3>
+              <p class="text-sm text-gray-600 dark:text-gray-300 mb-3">Rotoscope animation study • 4K • 5 versions</p>
+              <div class="flex items-center justify-between">
+                <div class="flex gap-3 text-xs text-gray-500">
+                  <span><i class="fas fa-eye mr-1"></i>8.9k</span>
+                  <span><i class="fas fa-heart mr-1"></i>1.7k</span>
+                  <span><i class="fas fa-download mr-1"></i>623</span>
+                </div>
+                <div class="flex gap-2">
+                  <button class="px-3 py-1 bg-blue-600 text-white rounded-lg text-xs hover:bg-blue-700 transition-colors">
+                    <i class="fas fa-play mr-1"></i>View
+                  </button>
+                  <button class="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-lg text-xs hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                    <i class="fas fa-code-branch mr-1"></i>Fork
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="swiper-slide carousel-card p-4">
+          <div class="rounded-xl overflow-hidden shadow-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:shadow-2xl transition-all duration-300">
+            <div class="relative">
+              <img src="https://images.unsplash.com/photo-1579952363873-27d3bfad9c0d?w=400&h=225&fit=crop&crop=center" alt="Studio Ghibli Style Animation" class="w-full h-48 object-cover"/>
+              <div class="absolute top-3 left-3 px-2 py-1 bg-green-500 text-white text-xs font-bold rounded-full">
+                <i class="fas fa-leaf mr-1"></i>NEW
+      </div>
+              <div class="absolute top-3 right-3 px-2 py-1 bg-black/50 text-white text-xs rounded-full">
+                <i class="fas fa-play mr-1"></i>3:22
+              </div>
+            </div>
+            <div class="p-4">
+              <div class="flex items-center gap-2 mb-2">
+                <div class="w-6 h-6 bg-gradient-to-r from-green-500 to-teal-500 rounded-full flex items-center justify-center text-white text-xs font-bold">SG</div>
+                <span class="text-sm text-gray-500">@ghibli_fan</span>
+              </div>
+              <h3 class="font-bold text-lg mb-2">Ghibli Style Landscape</h3>
+              <p class="text-sm text-gray-600 dark:text-gray-300 mb-3">Peaceful nature scene with wind effects • 1080p • 2 versions</p>
+              <div class="flex items-center justify-between">
+                <div class="flex gap-3 text-xs text-gray-500">
+                  <span><i class="fas fa-eye mr-1"></i>6.2k</span>
+                  <span><i class="fas fa-heart mr-1"></i>1.4k</span>
+                  <span><i class="fas fa-download mr-1"></i>432</span>
+                </div>
+                <div class="flex gap-2">
+                  <button class="px-3 py-1 bg-blue-600 text-white rounded-lg text-xs hover:bg-blue-700 transition-colors">
+                    <i class="fas fa-play mr-1"></i>View
+                  </button>
+                  <button class="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-lg text-xs hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                    <i class="fas fa-code-branch mr-1"></i>Fork
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- REPLACED: Cyberpunk card -->
+        <div class="swiper-slide carousel-card p-4">
+          <div class="rounded-xl overflow-hidden shadow-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:shadow-2xl transition-all duration-300">
+            <div class="relative">
+              <img src="https://images.unsplash.com/photo-1520975693416-35a1cb65bd5e?w=400&h=225&fit=crop&crop=center" alt="Demon Slayer Infinite Castle Interior" class="w-full h-48 object-cover"/>
+              <div class="absolute top-3 left-3 px-2 py-1 bg-rose-500 text-white text-xs font-bold rounded-full">
+                <i class="fas fa-fire mr-1"></i>TOP
+              </div>
+              <div class="absolute top-3 right-3 px-2 py-1 bg-black/50 text-white text-xs rounded-full">
+                <i class="fas fa-play mr-1"></i>3:05
+              </div>
+            </div>
+            <div class="p-4">
+              <div class="flex items-center gap-2 mb-2">
+                <div class="w-6 h-6 bg-gradient-to-r from-rose-500 to-pink-500 rounded-full flex items-center justify-center text-white text-xs font-bold">IC</div>
+                <span class="text-sm text-gray-500">@castle_artist</span>
+              </div>
+              <h3 class="font-bold text-lg mb-2">Infinite Castle — Vertical Room</h3>
+              <p class="text-sm text-gray-600 dark:text-gray-300 mb-3">Perspective-bending hallways with dynamic lighting • 4K • 2 versions</p>
+              <div class="flex items-center justify-between">
+                <div class="flex gap-3 text-xs text-gray-500">
+                  <span><i class="fas fa-eye mr-1"></i>9.7k</span>
+                  <span><i class="fas fa-heart mr-1"></i>2.0k</span>
+                  <span><i class="fas fa-download mr-1"></i>540</span>
+                </div>
+                <div class="flex gap-2">
+                  <button class="px-3 py-1 bg-blue-600 text-white rounded-lg text-xs hover:bg-blue-700 transition-colors">
+                    <i class="fas fa-play mr-1"></i>View
+                  </button>
+                  <button class="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-lg text-xs hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                    <i class="fas fa-code-branch mr-1"></i>Fork
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Enhanced Navigation -->
+      <div class="swiper-button-prev !text-blue-600 !text-2xl !w-12 !h-12 !bg-white dark:!bg-gray-800 !rounded-full !shadow-lg !border !border-gray-200 dark:!border-gray-600 hover:!scale-110 transition-transform"></div>
+      <div class="swiper-button-next !text-blue-600 !text-2xl !w-12 !h-12 !bg-white dark:!bg-gray-800 !rounded-full !shadow-lg !border !border-gray-200 dark:!border-gray-600 hover:!scale-110 transition-transform"></div>
+      
+      <!-- Enhanced Pagination -->
+      <div class="swiper-pagination !mt-8 !relative"></div>
+    </div>
+  </section>
+
+  <!-- PROJECT REPOSITORY CARDS (GitHub-like) -->
+  <section id="projects" class="container mx-auto px-4 py-16">
+    <div class="flex items-center justify-between mb-8">
+      <div>
+        <h2 class="text-4xl font-bold mb-2">📁 Project Repository</h2>
+        <p class="text-gray-600 dark:text-gray-300">GitHub-style view for animator teams and collaborations</p>
+      </div>
+      <div class="flex gap-2">
+        <button class="px-4 py-2 rounded-lg bg-gray-100 dark:bg-gray-800 text-sm font-medium hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
+          <i class="fas fa-sort mr-1"></i>Sort
+        </button>
+        <button class="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+          <i class="fas fa-filter mr-1"></i>Filter
+        </button>
+      </div>
+    </div>
+
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <!-- Enhanced Project Card 1 -->
+      <article class="project-card bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 hover:shadow-2xl transition-all duration-300">
+        <div class="flex items-start gap-4">
+          <div class="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl overflow-hidden shadow-lg">
+            <img src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=200&h=200&fit=crop&crop=center" alt="3D Character Rig" class="w-full h-full object-cover" />
+          </div>
+          <div class="flex-1">
+            <div class="flex items-center gap-2 mb-2">
+              <h3 class="font-bold text-lg">Character Rig — Shiro</h3>
+              <span class="px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 text-xs font-bold rounded-full">
+                <i class="fas fa-check mr-1"></i>Verified
+              </span>
+            </div>
+            <div class="text-sm text-gray-500 mb-2">
+              <i class="fas fa-user mr-1"></i>Owner: @vivek • 
+              <i class="fas fa-clock mr-1"></i>Updated 3 days ago
+            </div>
+            <p class="text-sm text-gray-600 dark:text-gray-300 mb-4 leading-relaxed">
+              A full-body rig for stylized anime character with FK/IK switching, facial blendshapes, and advanced deformation controls.
+            </p>
+            <div class="flex flex-wrap gap-2 mb-4">
+              <span class="text-xs px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full font-medium">
+                <i class="fas fa-cube mr-1"></i>.blend
+              </span>
+              <span class="text-xs px-3 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded-full font-medium">
+                <i class="fas fa-cogs mr-1"></i>Rigging
+              </span>
+              <span class="text-xs px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded-full font-medium">
+                <i class="fas fa-cube mr-1"></i>3D
+              </span>
+            </div>
+            <div class="flex items-center justify-between">
+              <div class="flex gap-4 text-xs text-gray-500">
+                <span><i class="fas fa-eye mr-1"></i>2.1k</span>
+                <span><i class="fas fa-code-branch mr-1"></i>45</span>
+                <span><i class="fas fa-download mr-1"></i>312</span>
+              </div>
+              <div class="flex gap-2">
+                <button class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">
+                  <i class="fas fa-folder-open mr-1"></i>Open
+                </button>
+                <button class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                  <i class="fas fa-history mr-1"></i>Versions
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- Enhanced Project Card 2 -->
+      <article class="project-card bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 hover:shadow-2xl transition-all duration-300">
+        <div class="flex items-start gap-4">
+          <div class="w-20 h-20 bg-gradient-to-br from-pink-500 to-red-600 rounded-xl overflow-hidden shadow-lg">
+            <img src="https://images.unsplash.com/photo-1611224923853-80b023f02d71?w=200&h=200&fit=crop&crop=center" alt="Motion Pack" class="w-full h-full object-cover" />
+          </div>
+          <div class="flex-1">
+            <div class="flex items-center gap-2 mb-2">
+              <h3 class="font-bold text-lg">Motion Pack — Transitions</h3>
+              <span class="px-2 py-1 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300 text-xs font-bold rounded-full">
+                <i class="fas fa-star mr-1"></i>Featured
+              </span>
+            </div>
+            <div class="text-sm text-gray-500 mb-2">
+              <i class="fas fa-user mr-1"></i>Owner: @maya • 
+              <i class="fas fa-clock mr-1"></i>Updated 7 days ago
+            </div>
+            <p class="text-sm text-gray-600 dark:text-gray-300 mb-4 leading-relaxed">
+              After Effects templates and precomps for anime style scene transitions with customizable parameters and effects.
+            </p>
+            <div class="flex flex-wrap gap-2 mb-4">
+              <span class="text-xs px-3 py-1 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 rounded-full font-medium">
+                <i class="fas fa-film mr-1"></i>.aep
+              </span>
+              <span class="text-xs px-3 py-1 bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 rounded-full font-medium">
+                <i class="fas fa-layer-group mr-1"></i>Templates
+              </span>
+            </div>
+            <div class="flex items-center justify-between">
+              <div class="flex gap-4 text-xs text-gray-500">
+                <span><i class="fas fa-eye mr-1"></i>1.8k</span>
+                <span><i class="fas fa-code-branch mr-1"></i>23</span>
+                <span><i class="fas fa-download mr-1"></i>189</span>
+              </div>
+              <div class="flex gap-2">
+                <button class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">
+                  <i class="fas fa-folder-open mr-1"></i>Open
+                </button>
+                <button class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                  <i class="fas fa-code-branch mr-1"></i>Fork
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- Enhanced Project Card 3 -->
+      <article class="project-card bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 hover:shadow-2xl transition-all duration-300">
+        <div class="flex items-start gap-4">
+          <div class="w-20 h-20 bg-gradient-to-br from-green-500 to-teal-600 rounded-xl overflow-hidden shadow-lg">
+            <img src="https://images.unsplash.com/photo-1579952363873-27d3bfad9c0d?w=200&h=200&fit=crop&crop=center" alt="Environment Pack" class="w-full h-full object-cover" />
+          </div>
+          <div class="flex-1">
+            <div class="flex items-center gap-2 mb-2">
+              <h3 class="font-bold text-lg">Environment Pack — Nature</h3>
+              <span class="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-xs font-bold rounded-full">
+                <i class="fas fa-leaf mr-1"></i>New
+              </span>
+            </div>
+            <div class="text-sm text-gray-500 mb-2">
+              <i class="fas fa-user mr-1"></i>Owner: @nature_artist • 
+              <i class="fas fa-clock mr-1"></i>Updated 1 day ago
+            </div>
+            <p class="text-sm text-gray-600 dark:text-gray-300 mb-4 leading-relaxed">
+              Complete nature environment pack with trees, grass, rocks, and atmospheric effects for outdoor scenes.
+            </p>
+            <div class="flex flex-wrap gap-2 mb-4">
+              <span class="text-xs px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded-full font-medium">
+                <i class="fas fa-cube mr-1"></i>.blend
+              </span>
+              <span class="text-xs px-3 py-1 bg-teal-100 dark:bg-teal-900/30 text-teal-700 dark:text-teal-300 rounded-full font-medium">
+                <i class="fas fa-tree mr-1"></i>Environment
+              </span>
+            </div>
+            <div class="flex items-center justify-between">
+              <div class="flex gap-4 text-xs text-gray-500">
+                <span><i class="fas fa-eye mr-1"></i>956</span>
+                <span><i class="fas fa-code-branch mr-1"></i>12</span>
+                <span><i class="fas fa-download mr-1"></i>78</span>
+              </div>
+              <div class="flex gap-2">
+                <button class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">
+                  <i class="fas fa-folder-open mr-1"></i>Open
+                </button>
+                <button class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                  <i class="fas fa-share mr-1"></i>Share
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- Enhanced Project Card 4 -->
+      <article class="project-card bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 hover:shadow-2xl transition-all duration-300">
+        <div class="flex items-start gap-4">
+          <div class="w-20 h-20 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-xl overflow-hidden shadow-lg">
+            <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=225&fit=crop&crop=center" alt="Particle Effects" class="w-full h-full object-cover" />
+          </div>
+          <div class="flex-1">
+            <div class="flex items-center gap-2 mb-2">
+              <h3 class="font-bold text-lg">Particle Effects — Magic</h3>
+              <span class="px-2 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 text-xs font-bold rounded-full">
+                <i class="fas fa-magic mr-1"></i>Premium
+              </span>
+            </div>
+            <div class="text-sm text-gray-500 mb-2">
+              <i class="fas fa-user mr-1"></i>Owner: @fx_master • 
+              <i class="fas fa-clock mr-1"></i>Updated 5 days ago
+            </div>
+            <p class="text-sm text-gray-600 dark:text-gray-300 mb-4 leading-relaxed">
+              High-quality particle effects for magical spells, energy blasts, and mystical environments with customizable parameters.
+            </p>
+            <div class="flex flex-wrap gap-2 mb-4">
+              <span class="text-xs px-3 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded-full font-medium">
+                <i class="fas fa-cube mr-1"></i>.blend
+              </span>
+              <span class="text-xs px-3 py-1 bg-pink-100 dark:bg-pink-900/30 text-pink-700 dark:text-pink-300 rounded-full font-medium">
+                <i class="fas fa-sparkles mr-1"></i>Effects
+              </span>
+            </div>
+            <div class="flex items-center justify-between">
+              <div class="flex gap-4 text-xs text-gray-500">
+                <span><i class="fas fa-eye mr-1"></i>3.2k</span>
+                <span><i class="fas fa-code-branch mr-1"></i>67</span>
+                <span><i class="fas fa-download mr-1"></i>445</span>
+              </div>
+              <div class="flex gap-2">
+                <button class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">
+                  <i class="fas fa-folder-open mr-1"></i>Open
+                </button>
+                <button class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                  <i class="fas fa-shopping-cart mr-1"></i>Buy
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- Enhanced Project Card 5 -->
+      <article class="project-card bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 hover:shadow-2xl transition-all duration-300">
+        <div class="flex items-start gap-4">
+          <div class="w-20 h-20 bg-gradient-to-br from-orange-500 to-red-600 rounded-xl overflow-hidden shadow-lg">
+            <img src="https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=200&h=200&fit=crop&crop=center" alt="Animation Pack" class="w-full h-full object-cover" />
+          </div>
+          <div class="flex-1">
+            <div class="flex items-center gap-2 mb-2">
+              <h3 class="font-bold text-lg">Animation Pack — Combat</h3>
+              <span class="px-2 py-1 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 text-xs font-bold rounded-full">
+                <i class="fas fa-fire mr-1"></i>Hot
+              </span>
+            </div>
+            <div class="text-sm text-gray-500 mb-2">
+              <i class="fas fa-user mr-1"></i>Owner: @combat_animator • 
+              <i class="fas fa-clock mr-1"></i>Updated 2 days ago
+            </div>
+            <p class="text-sm text-gray-600 dark:text-gray-300 mb-4 leading-relaxed">
+              Complete combat animation pack with attack sequences, dodges, blocks, and special moves for action scenes.
+            </p>
+            <div class="flex flex-wrap gap-2 mb-4">
+              <span class="text-xs px-3 py-1 bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 rounded-full font-medium">
+                <i class="fas fa-cube mr-1"></i>.blend
+              </span>
+              <span class="text-xs px-3 py-1 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 rounded-full font-medium">
+                <i class="fas fa-fist-raised mr-1"></i>Combat
+              </span>
+            </div>
+            <div class="flex items-center justify-between">
+              <div class="flex gap-4 text-xs text-gray-500">
+                <span><i class="fas fa-eye mr-1"></i>4.7k</span>
+                <span><i class="fas fa-code-branch mr-1"></i>89</span>
+                <span><i class="fas fa-download mr-1"></i>623</span>
+              </div>
+              <div class="flex gap-2">
+                <button class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">
+                  <i class="fas fa-folder-open mr-1"></i>Open
+                </button>
+                <button class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                  <i class="fas fa-code-branch mr-1"></i>Fork
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- Enhanced Project Card 6 -->
+      <article class="project-card bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 hover:shadow-2xl transition-all duration-300">
+        <div class="flex items-start gap-4">
+          <div class="w-20 h-20 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-xl overflow-hidden shadow-lg">
+            <img src="https://images.unsplash.com/photo-1613376023733-0a73315d9b06?w=200&h=200&fit=crop&crop=center" alt="UI Animation" class="w-full h-full object-cover" />
+          </div>
+          <div class="flex-1">
+            <div class="flex items-center gap-2 mb-2">
+              <h3 class="font-bold text-lg">UI Animation Pack</h3>
+              <span class="px-2 py-1 bg-cyan-100 dark:bg-cyan-900/30 text-cyan-700 dark:text-cyan-300 text-xs font-bold rounded-full">
+                <i class="fas fa-mobile mr-1"></i>Mobile
+              </span>
+            </div>
+            <div class="text-sm text-gray-500 mb-2">
+              <i class="fas fa-user mr-1"></i>Owner: @ui_designer • 
+              <i class="fas fa-clock mr-1"></i>Updated 4 days ago
+            </div>
+            <p class="text-sm text-gray-600 dark:text-gray-300 mb-4 leading-relaxed">
+              Modern UI animation pack with button interactions, transitions, and micro-animations for web and mobile apps.
+            </p>
+            <div class="flex flex-wrap gap-2 mb-4">
+              <span class="text-xs px-3 py-1 bg-cyan-100 dark:bg-cyan-900/30 text-cyan-700 dark:text-cyan-300 rounded-full font-medium">
+                <i class="fas fa-film mr-1"></i>.aep
+              </span>
+              <span class="text-xs px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full font-medium">
+                <i class="fas fa-mobile mr-1"></i>UI
+              </span>
+            </div>
+            <div class="flex items-center justify-between">
+              <div class="flex gap-4 text-xs text-gray-500">
+                <span><i class="fas fa-eye mr-1"></i>1.5k</span>
+                <span><i class="fas fa-code-branch mr-1"></i>34</span>
+                <span><i class="fas fa-download mr-1"></i>267</span>
+              </div>
+              <div class="flex gap-2">
+                <button class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">
+                  <i class="fas fa-folder-open mr-1"></i>Open
+                </button>
+                <button class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                  <i class="fas fa-share mr-1"></i>Share
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </article>
+    </div>
+  </section>
+ <section class="max-w-4xl mx-auto p-6 bg-gray-800 rounded-2xl shadow-lg mt-10">
+  <h2 class="text-2xl font-semibold text-white mb-4">📂 Upload Your Project</h2>
+  
+  <div class="flex items-center gap-3 mb-4">
+    <input type="file" id="fileInput" class="text-white" />
+    <button id="uploadBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg">
+      Upload Project
+    </button>
+  </div>
+
+  <div id="previewContainer" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4"></div>
+</section>
+
+
+  <!-- UPLOADER: Enhanced Drag & Drop with file list and format support -->
+  <section id="uploader" class="container mx-auto px-4 py-16">
+    <div class="text-center mb-12">
+      <h2 class="text-4xl font-bold mb-4">🚀 Upload Your Animation</h2>
+      <p class="text-xl text-gray-600 dark:text-gray-300">Share your creative work with the animation community</p>
+    </div>
+    
+    <div class="grid lg:grid-cols-3 gap-8">
+      <!-- Main Upload Area -->
+      <div class="lg:col-span-2">
+        <div id="dropZone" class="border-2 border-dashed border-blue-500 dark:border-blue-400 rounded-2xl p-8 text-center cursor-pointer transition-all duration-300 hover:border-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 bg-blue-50/50 dark:bg-blue-900/10">
+          <div class="text-6xl text-gray-400 mb-4 animate-pulse-slow">
+            <i class="fas fa-cloud-upload-alt"></i>
+          </div>
+          <h3 class="text-xl font-semibold mb-2">Drag & Drop Files Here</h3>
+          <p class="text-gray-600 dark:text-gray-300 mb-4">or click to browse your files</p>
+          <div class="flex flex-wrap justify-center gap-2 text-sm text-gray-500 mb-4">
+            <span class="px-3 py-1 bg-gray-100 dark:bg-gray-800 rounded-full">📹 .mp4 .mov .mkv</span>
+            <span class="px-3 py-1 bg-gray-100 dark:bg-gray-800 rounded-full">🎨 .blend .aep .psd</span>
+            <span class="px-3 py-1 bg-gray-100 dark:bg-gray-800 rounded-full">🖼️ .png .webp .gif</span>
+          </div>
+          <p class="text-xs text-gray-400">Max 10GB per file • Resumable uploads supported</p>
+          <input id="fileInput" type="file" accept=".mp4,.mov,.mkv,.gif,.blend,.aep,.psd,.png,.webp" class="block w-full p-4 mb-4 text-gray-700 dark:text-gray-300 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer bg-white dark:bg-gray-800 focus:outline-none" />
+        </div>
+
+        <!-- File List -->
+        <div id="fileList" class="mt-6 space-y-3"></div>
+
+        <!-- Project Details -->
+        <div class="mt-8 bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg">
+          <h3 class="text-xl font-semibold mb-4">Project Details</h3>
+          <div class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Project Title</label>
+              <input id="projectTitle" placeholder="Enter your project title..." class="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200" />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Description</label>
+              <textarea id="projectDescription" placeholder="Describe your animation project..." rows="3" class="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 resize-none"></textarea>
+            </div>
+            <div class="grid md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Category</label>
+                <select id="projectCategory" class="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200">
+                  <option value="">Select category...</option>
+                  <option value="3d">3D Animation</option>
+                  <option value="2d">2D Animation</option>
+                  <option value="motion-graphics">Motion Graphics</option>
+                  <option value="character">Character Animation</option>
+                  <option value="environment">Environment</option>
+                  <option value="effects">Visual Effects</option>
+                  <option value="ui">UI Animation</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Tags</label>
+                <input id="projectTags" placeholder="animation, 3d, blender..." class="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200" />
+              </div>
+            </div>
+        </div>
+      </div>
+
+        <!-- Upload Actions -->
+        <div class="mt-6 flex gap-4">
+          <button id="uploadBtn" class="flex-1 px-8 py-4 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-bold text-lg rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-300 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed">
+            <i class="fas fa-rocket mr-2"></i>Upload Project
+          </button>
+          <button id="saveDraftBtn" class="px-6 py-4 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-semibold rounded-xl hover:border-blue-500 hover:text-blue-600 dark:hover:text-blue-400 transition-all duration-300">
+            <i class="fas fa-save mr-2"></i>Save Draft
+          </button>
+        </div>
+      </div>
+
+      <!-- Sidebar -->
+      <div class="space-y-6">
+        <!-- Upload Tips -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg">
+          <h3 class="text-lg font-semibold mb-4 flex items-center">
+            <i class="fas fa-lightbulb mr-2 text-yellow-500"></i>Upload Tips
+          </h3>
+          <ul class="text-sm text-gray-600 dark:text-gray-300 space-y-3">
+            <li class="flex items-start gap-2">
+              <i class="fas fa-check-circle text-green-500 mt-1"></i>
+              <span>Use FFmpeg to export preview clips (10s @720p) for fast playback</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <i class="fas fa-check-circle text-green-500 mt-1"></i>
+              <span>Provide flattened preview (.mp4) alongside source files</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <i class="fas fa-check-circle text-green-500 mt-1"></i>
+              <span>Use resumable uploads for files > 100MB</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <i class="fas fa-check-circle text-green-500 mt-1"></i>
+              <span>Include project files (.blend/.aep) for collaboration</span>
+            </li>
+        </ul>
+        </div>
+
+        <!-- Upload Progress -->
+        <div id="uploadProgress" class="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg hidden">
+          <h3 class="text-lg font-semibold mb-4 flex items-center">
+            <i class="fas fa-spinner fa-spin mr-2 text-blue-500"></i>Upload Progress
+          </h3>
+          <div class="space-y-3">
+            <div class="flex justify-between text-sm">
+              <span>Overall Progress</span>
+              <span id="overallProgress">0%</span>
+            </div>
+            <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+              <div id="overallProgressBar" class="bg-gradient-to-r from-blue-500 to-purple-500 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+            </div>
+            <div id="fileProgressList" class="space-y-2"></div>
+          </div>
+        </div>
+
+        <!-- Recent Uploads -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg">
+          <h3 class="text-lg font-semibold mb-4 flex items-center">
+            <i class="fas fa-history mr-2 text-blue-500"></i>Recent Uploads
+          </h3>
+          <div class="space-y-3">
+            <div class="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+            <!-- Upload script -->
+            <script src="/frontend/app.js"></script>
+              <script>
+document.addEventListener("DOMContentLoaded", () => {
+  // Hero upload button - scrolls to uploader section
+  const heroUploadBtn = document.getElementById("heroUploadBtn");
+  if (heroUploadBtn) {
+    heroUploadBtn.addEventListener("click", () => {
+      document.getElementById("uploader").scrollIntoView({ behavior: "smooth" });
+    });
+  }
+  
+  // File upload functionality
+  const fileInput = document.getElementById("fileInput");
+  const uploadButton = document.getElementById("uploadBtn");
+
+  if (!fileInput || !uploadButton) {
+    console.error("Missing #fileInput or #uploadBtn in HTML");
+    return;
+  }
+
+  uploadButton.addEventListener("click", async () => {
+    const file = fileInput.files[0];
+    if (!file) {
+      showNotification("⚠️ Please select a file first!", "error");
+      return;
+    }
+
+    // Show loading state
+    uploadButton.disabled = true;
+    uploadButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Uploading...';
+
+    const formData = new FormData();
+    formData.append("file", file); // Using "file" as field name to match backend
+
+    try {
+      const res = await fetch("http://localhost:5000/api/upload", {
+        method: "POST",
+        body: formData
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        showNotification("✅ File uploaded successfully!", "success");
+        console.log("Upload success:", data);
+        
+        // Clear the input
+        fileInput.value = "";
+        
+        // Update the project files list if it exists
+        const filesList = document.getElementById("projectFilesList");
+        if (filesList) {
+          const fileElement = document.createElement("div");
+          fileElement.className = "text-sm text-gray-700 dark:text-gray-300 mb-2";
+          fileElement.innerHTML = `
+            <div class="flex items-center justify-between">
+              <span>${data.file.name}</span>
+              <a href="${data.file.url}" target="_blank" class="text-blue-600 hover:underline">View</a>
+            </div>
+          `;
+          filesList.appendChild(fileElement);
+        }
+      } else {
+        showNotification("❌ Upload failed: " + data.error, "error");
+        console.error("Error:", data);
+      }
+    } catch (err) {
+      console.error("Upload error:", err);
+      showNotification("🚫 Upload error — check backend connection!", "error");
+    } finally {
+      // Reset button state
+      uploadButton.disabled = false;
+      uploadButton.innerHTML = 'Upload Project';
+    }
+  });
+});
+</script>
+              <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg flex items-center justify-center text-white text-xs font-bold">CS</div>
+              <div class="flex-1">
+                <div class="font-medium text-sm">Character Study</div>
+                <div class="text-xs text-gray-500">2 hours ago</div>
+              </div>
+              <div class="text-xs text-green-600 font-medium">✓</div>
+            </div>
+            <div class="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+              <div class="w-8 h-8 bg-gradient-to-r from-green-500 to-teal-500 rounded-lg flex items-center justify-center text-white text-xs font-bold">EP</div>
+              <div class="flex-1">
+                <div class="font-medium text-sm">Environment Pack</div>
+                <div class="text-xs text-gray-500">1 day ago</div>
+              </div>
+              <div class="text-xs text-green-600 font-medium">✓</div>
+            </div>
+            <div class="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+              <div class="w-8 h-8 bg-gradient-to-r from-orange-500 to-red-500 rounded-lg flex items-center justify-center text-white text-xs font-bold">AP</div>
+              <div class="flex-1">
+                <div class="font-medium text-sm">Animation Pack</div>
+                <div class="text-xs text-gray-500">3 days ago</div>
+              </div>
+              <div class="text-xs text-green-600 font-medium">✓</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- VERSION HISTORY + COMMENTS -->
+  <section class="container mx-auto px-4 py-10">
+    <div class="grid lg:grid-cols-3 gap-6">
+      <div class="lg:col-span-2">
+        <h3 class="text-2xl font-bold mb-4">Version History</h3>
+        <div class="timeline pl-6">
+          <div class="mb-6 relative">
+            <div class="absolute -left-3 top-1 w-6 h-6 rounded-full bg-blue-600"></div>
+            <div class="ml-2">
+              <div class="font-semibold">v2.0 — Lighting & Texture</div>
+              <div class="text-sm text-gray-500">Uploaded by @vivek — 2025-09-20</div>
+              <p class="mt-2 text-sm text-gray-600 dark:text-gray-300">Updated PBR textures and improved rim lighting. Includes preview clip and source .blend</p>
+              <div class="mt-3 flex gap-2">
+                <button class="px-3 py-1 rounded bg-blue-600 text-white text-sm">Download</button>
+                <button class="px-3 py-1 rounded border text-sm" onclick="showComments()">Comments</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="mb-6 relative">
+            <div class="absolute -left-3 top-1 w-6 h-6 rounded-full bg-gray-400"></div>
+            <div class="ml-2">
+              <div class="font-semibold">v1.0 — Initial Upload</div>
+              <div class="text-sm text-gray-500">Uploaded by @vivek — 2025-09-10</div>
+              <p class="mt-2 text-sm text-gray-600 dark:text-gray-300">Base rig and model files. Ready for animation tests.</p>
+              <div class="mt-3 flex gap-2">
+                <button class="px-3 py-1 rounded border text-sm">Download</button>
+                <button class="px-3 py-1 rounded border text-sm">Restore</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Comments panel -->
+      <aside class="bg-white dark:bg-gray-800 rounded-lg p-4">
+        <h4 class="font-semibold">Feedback</h4>
+        <div id="comments" class="mt-3 space-y-3 max-h-72 overflow-auto">
+          <!-- sample comment -->
+          <div class="border rounded p-2">
+            <div class="flex justify-between text-sm text-gray-500"><div>@maya</div><div>00:02</div></div>
+            <div class="mt-1 text-sm">Nice squash-and-stretch on the jump, but the landing feels heavy — soften the ease out.</div>
+          </div>
+        </div>
+
+        <div class="mt-4">
+          <input id="commentTime" type="text" placeholder="Timecode (e.g. 00:02 or 12.5)" class="w-full px-3 py-2 rounded border bg-white dark:bg-gray-900 text-sm" />
+          <textarea id="commentText" placeholder="Leave feedback with optional timecode" class="w-full mt-2 px-3 py-2 rounded border bg-white dark:bg-gray-900 text-sm"></textarea>
+          <button id="postComment" class="mt-2 w-full bg-blue-600 text-white px-3 py-2 rounded">Post comment</button>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="bg-white dark:bg-gray-800 border-t mt-12">
+    <div class="container mx-auto px-4 py-10 grid md:grid-cols-4 gap-6">
+      <div>
+        <h5 class="font-semibold text-lg">Animations</h5>
+        <p class="text-sm text-gray-600 dark:text-gray-300">Collaborate, version and show off your animation work.</p>
+      </div>
+      <div>
+        <h6 class="font-semibold">Resources</h6>
+        <ul class="mt-2 text-sm text-gray-600 dark:text-gray-300 space-y-1">
+          <li><a href="#" class="hover:underline">Docs</a></li>
+          <li><a href="#" class="hover:underline">API</a></li>
+          <li><a href="#" class="hover:underline">Pricing</a></li>
+        </ul>
+      </div>
+      <div>
+        <h6 class="font-semibold">Community</h6>
+        <ul class="mt-2 text-sm text-gray-600 dark:text-gray-300 space-y-1">
+          <li><a href="#" class="hover:underline">Discord</a></li>
+          <li><a href="#" class="hover:underline">Twitter</a></li>
+          <li><a href="#" class="hover:underline">GitHub</a></li>
+        </ul>
+      </div>
+      <div>
+        <h6 class="font-semibold">Language</h6>
+        <select id="lang" class="mt-2 px-3 py-2 rounded border bg-white dark:bg-gray-900 text-sm w-full">
+          <option>English</option>
+          <option>Telugu</option>
+          <option>Japanese</option>
+        </select>
+      </div>
+    </div>
+    <div class="border-t py-4 text-center text-sm text-gray-500">© 2025 Animations hub. All rights reserved.</div>
+  <!-- 🌟 Footer -->
+<footer class="mt-16 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 text-white text-center py-4 shadow-lg">
+  <p class="text-lg font-semibold tracking-wide animate-pulse">
+    ✨ Created by <span class="font-extrabold text-yellow-300">Karicheti Vivek</span> ✨
+  </p>
+</footer>
+
+  </footer>
+
+  <!-- Video Preview Modal -->
+  <div id="videoPreviewModal" class="fixed inset-0 bg-black/80 z-50 hidden flex items-center justify-center p-4">
+    <div class="relative w-full max-w-4xl bg-white dark:bg-gray-800 rounded-xl overflow-hidden">
+      <div class="flex justify-between items-center p-4 border-b">
+        <h3 class="text-lg font-semibold" id="previewTitle">Video Preview</h3>
+        <button onclick="closeVideoPreview()" class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">
+          <i class="fas fa-times text-xl"></i>
+        </button>
+      </div>
+      <div class="relative aspect-video bg-black">
+        <video id="previewVideo" controls class="w-full h-full">
+          Your browser does not support the video tag.
+        </video>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCRIPTS -->
+  <script src="https://unpkg.com/swiper@8/swiper-bundle.min.js"></script>
+  <script>
+  const authButtons = document.getElementById("authButtons");
+  const profileMenu = document.getElementById("profileMenu");
+  const profileBtn = document.getElementById("profileBtn");
+  const profileDropdown = document.getElementById("profileDropdown");
+  const profileIcon = document.getElementById("profileIcon");
+  const profileName = document.getElementById("profileName");
+  const logoutBtn = document.getElementById("logoutBtn");
+
+  // Check login state
+  const user = JSON.parse(localStorage.getItem("user"));
+  if (user) {
+    authButtons.classList.add("hidden");
+    profileMenu.classList.remove("hidden");
+    profileIcon.textContent = user.username[0].toUpperCase(); // First letter
+    profileName.textContent = "@" + user.username;
+  }
+
+  // Toggle dropdown
+  profileBtn?.addEventListener("click", () => {
+    profileDropdown.classList.toggle("hidden");
+  });
+
+  // Logout
+  logoutBtn?.addEventListener("click", () => {
+    localStorage.removeItem("user");
+    window.location.reload();
+  });
+</script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const fileInput = document.getElementById("fileInput");
+  const uploadButton = document.getElementById("uploadBtn");
+  const previewContainer = document.getElementById("previewContainer");
+
+  if (!fileInput || !uploadButton || !previewContainer) {
+    console.error("Missing upload UI elements!");
+    return;
+  }
+
+  // Fetch existing uploaded files on page load
+  loadFiles();
+
+  // Upload new file
+  uploadButton.addEventListener("click", async () => {
+    const file = fileInput.files[0];
+    if (!file) return alert("⚠️ Please select a file first!");
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const res = await fetch("http://localhost:5000/api/upload", {
+        method: "POST",
+        body: formData
+      });
+      const data = await res.json();
+
+      if (res.ok) {
+        alert("✅ File uploaded successfully!");
+        addFileCard(data.file);
+      } else {
+        alert("❌ Upload failed: " + data.error);
+      }
+    } catch (err) {
+      console.error("Upload error:", err);
+      alert("🚫 Upload error — check backend!");
+    }
+  });
+
+  // Load files from backend
+  async function loadFiles() {
+    try {
+      const res = await fetch("http://localhost:5000/api/files");
+      const files = await res.json();
+      previewContainer.innerHTML = "";
+      files.forEach(addFileCard);
+    } catch (err) {
+      console.error("Failed to load files:", err);
+    }
+  }
+
+  // Create file card
+  function addFileCard(file) {
+    const card = document.createElement("div");
+    card.className = "bg-gray-700 p-3 rounded-xl shadow-md hover:shadow-lg transition relative";
+
+    // Thumbnail or icon
+    let content;
+    if (file.type?.startsWith("image/")) {
+      content = `<img src="${file.url}" alt="${file.name}" class="rounded-lg w-full h-40 object-cover">`;
+    } else if (file.type?.startsWith("video/")) {
+      content = `<video src="${file.url}" controls class="rounded-lg w-full h-40 object-cover"></video>`;
+    } else {
+      content = `<div class="flex items-center justify-center h-40 bg-gray-600 rounded-lg text-white text-3xl">📁</div>`;
+    }
+
+    <div class="flex justify-between items-center mt-2">
+  <button class="like-btn bg-pink-600 hover:bg-pink-700 px-3 py-1 rounded">❤️ Like (${file.likes || 0})</button>
+  <button class="comment-btn bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded">💬 Comment</button>
+  <button class="feedback-btn bg-yellow-600 hover:bg-yellow-700 px-3 py-1 rounded">📝 Feedback</button>
+</div>
+
+
+    // Delete button
+    card.querySelector(".delete-btn").addEventListener("click", async () => {
+      if (!confirm("Delete this file?")) return;
+      try {
+        await fetch(`http://localhost:5000/api/delete/${encodeURIComponent(file.name)}`, {
+          method: "DELETE"
+        });
+        card.remove();
+      } catch (err) {
+        alert("❌ Failed to delete file.");
+      }
+    });
+
+    previewContainer.appendChild(card);
+  }
+});
+</script>
+
+<script>
+  document.getElementById("postComment").addEventListener("click", async () => {
+    const user = JSON.parse(localStorage.getItem("user"));
+    if (!user) return alert("Login required!");
+
+    const projectId = "replace_with_selected_project_id"; // you can set dynamically
+    const timecode = document.getElementById("commentTime").value;
+    const text = document.getElementById("commentText").value;
+
+    const res = await fetch("http://localhost:5000/api/comments", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ projectId, user: user.username, timecode, text }),
+    });
+
+    const data = await res.json();
+    console.log("Comment added:", data);
+  });
+</script>
+<script>
+  async function loadProjects() {
+    const res = await fetch("http://localhost:5000/api/projects");
+    const projects = await res.json();
+
+    const container = document.querySelector("#projects .grid");
+    container.innerHTML = "";
+
+    projects.forEach(p => {
+      container.innerHTML += `
+        <article class="project-card bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
+          <h3 class="font-bold text-lg">${p.title}</h3>
+          <p class="text-sm">${p.description}</p>
+          <div class="text-xs text-gray-500">By @${p.owner}</div>
+          <a href="${p.fileUrl}" target="_blank" class="text-blue-600">Download</a>
+        </article>
+      `;
+    });
+  }
+
+  loadProjects();
+</script>
+
+  <script>
+    // Enhanced Theme Toggle with Smooth Transitions
+    const themeToggle = document.getElementById('themeToggle');
+    const themeIcon = document.getElementById('themeIcon');
+    const saved = localStorage.getItem('crTheme');
+    if (saved === 'dark') document.documentElement.classList.add('dark');
+    updateThemeIcon();
+    
+    themeToggle.addEventListener('click', () => {
+      document.documentElement.classList.toggle('dark');
+      const isDark = document.documentElement.classList.contains('dark');
+      localStorage.setItem('crTheme', isDark ? 'dark' : 'light');
+      updateThemeIcon();
+      
+      // Add ripple effect
+      const ripple = document.createElement('div');
+      ripple.className = 'absolute inset-0 bg-white opacity-20 rounded-xl animate-ping';
+      themeToggle.appendChild(ripple);
+      setTimeout(() => ripple.remove(), 600);
+    });
+    
+    function updateThemeIcon(){
+      const isDark = document.documentElement.classList.contains('dark');
+      themeIcon.className = isDark ? 'fas fa-sun' : 'fas fa-moon';
+    }
+
+    // Enhanced Swiper Configuration
+    const swiper = new Swiper('.swiper-container', {
+      loop: true,
+      slidesPerView: 'auto',
+      spaceBetween: 16,
+      centeredSlides: false,
+      pagination: { 
+        el: '.swiper-pagination', 
+        clickable: true,
+        dynamicBullets: true
+      },
+      navigation: { 
+        nextEl: '.swiper-button-next', 
+        prevEl: '.swiper-button-prev' 
+      },
+      breakpoints: {
+        640: { slidesPerView: 1.5 },
+        768: { slidesPerView: 2.5 },
+        1024: { slidesPerView: 3.5 }
+      }
+    });
+
+    // Enhanced Search Functionality (backend-powered)
+    const searchInput = document.getElementById('search');
+    const searchResults = document.getElementById('searchResults');
+    let searchTimer = null;
+
+    function renderSearchResults(items){
+      if (!items || items.length === 0) {
+        searchResults.innerHTML = '<div class="p-3 text-sm text-gray-500">No results</div>';
+        return;
+      }
+      searchResults.innerHTML = items.map(p => `
+        <a href="#" data-id="${p.id}" class="block px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-700 border-b border-gray-100 dark:border-gray-700">
+          <div class="font-medium">${p.title}</div>
+          <div class="text-xs text-gray-500">${(p.description||'').slice(0,80)}</div>
+        </a>
+      `).join('');
+    }
+
+    searchInput.addEventListener('input', (e) => {
+      clearTimeout(searchTimer);
+      const q = e.target.value.trim();
+      if (q.length < 2) { searchResults.classList.add('hidden'); return; }
+      searchTimer = setTimeout(async () => {
+        try {
+          const res = await API.fetch(`/api/projects?q=${encodeURIComponent(q)}`);
+          if (res.ok) {
+            renderSearchResults(res.data || []);
+            searchResults.classList.remove('hidden');
+          } else {
+            searchResults.innerHTML = '<div class="p-3 text-sm text-red-500">Search failed</div>';
+            searchResults.classList.remove('hidden');
+          }
+        } catch (err) {
+          console.error('search error', err);
+        }
+      }, 250);
+    });
+
+    searchInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') { e.preventDefault(); searchResults.classList.add('hidden'); }
+    });
+
+    // Click on a result -> navigate to project section or show project
+    searchResults.addEventListener('click', (e) => {
+      const a = e.target.closest('a[data-id]');
+      if (!a) return;
+      const id = a.dataset.id;
+      // navigate to projects area and try to highlight -- simple behavior: open project URL if you have one
+      window.location.hash = '#projects';
+      searchResults.classList.add('hidden');
+      // optionally you could load project details here
+      console.log('search selected project', id);
+    });
+
+    // Close search results when clicking outside
+    document.addEventListener('click', (e) => {
+      if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
+        searchResults.classList.add('hidden');
+      }
+    });
+
+    // Mobile Menu Toggle
+    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+    const mobileMenu = document.getElementById('mobileMenu');
+    
+    mobileMenuBtn.addEventListener('click', () => {
+      mobileMenu.classList.toggle('hidden');
+      const icon = mobileMenuBtn.querySelector('i');
+      icon.className = mobileMenu.classList.contains('hidden') ? 'fas fa-bars' : 'fas fa-times';
+    });
+
+    // Enhanced File Upload System
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('fileInput');
+    const fileList = document.getElementById('fileList');
+    const uploadProgress = document.getElementById('uploadProgress');
+    const overallProgress = document.getElementById('overallProgress');
+    const overallProgressBar = document.getElementById('overallProgressBar');
+    const fileProgressList = document.getElementById('fileProgressList');
+    
+    let selectedFiles = [];
+    let uploadQueue = [];
+
+    // Drag and Drop Events
+    dropZone.addEventListener('click', () => fileInput.click());
+    dropZone.addEventListener('dragover', (e) => { 
+      e.preventDefault(); 
+      dropZone.classList.add('border-blue-500', 'bg-blue-50', 'dark:bg-blue-900/10');
+    });
+    dropZone.addEventListener('dragleave', () => {
+      dropZone.classList.remove('border-blue-500', 'bg-blue-50', 'dark:bg-blue-900/10');
+    });
+    dropZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropZone.classList.remove('border-blue-500', 'bg-blue-50', 'dark:bg-blue-900/10');
+      handleFiles(e.dataTransfer.files);
+    });
+    fileInput.addEventListener('change', (e) => handleFiles(e.target.files));
+
+    function handleFiles(files) {
+      const newFiles = Array.from(files);
+      selectedFiles = [...selectedFiles, ...newFiles];
+      renderFileList();
+      showNotification(`${newFiles.length} file(s) added`, 'success');
+    }
+
+    function renderFileList() {
+      fileList.innerHTML = '';
+      selectedFiles.forEach((file, index) => {
+        const fileSize = formatFileSize(file.size);
+        const fileType = getFileType(file.name);
+        
+        const fileElement = document.createElement('div');
+        fileElement.className = 'flex items-center justify-between p-4 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-600 hover:shadow-md transition-all duration-200';
+        fileElement.innerHTML = `
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-gradient-to-r ${getFileTypeColor(fileType)} rounded-lg flex items-center justify-center text-white text-sm font-bold">
+              ${getFileTypeIcon(fileType)}
+            </div>
+            <div>
+              <div class="font-medium text-sm">${file.name}</div>
+              <div class="text-xs text-gray-500">${fileSize} • ${fileType}</div>
+            </div>
+          </div>
+          <div class="flex gap-2">
+            <button onclick="previewFile(${index})" class="px-3 py-1 text-xs bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-lg hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-colors">
+              <i class="fas fa-eye mr-1"></i>Preview
+            </button>
+            <button onclick="removeFile(${index})" class="px-3 py-1 text-xs bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 rounded-lg hover:bg-red-200 dark:hover:bg-red-900/50 transition-colors">
+              <i class="fas fa-trash mr-1"></i>Remove
+            </button>
+          </div>
+        `;
+        fileList.appendChild(fileElement);
+      });
+    }
+
+    function removeFile(index) {
+      selectedFiles.splice(index, 1);
+      renderFileList();
+      showNotification('File removed', 'info');
+    }
+
+    function previewFile(index) {
+      const file = selectedFiles[index];
+      showNotification(`Previewing: ${file.name}`, 'info');
+      // In a real app, this would open a preview modal
+    }
+
+    // show persistent upload error box
+    function showUploadError(msg){
+      try {
+        const box = document.getElementById('uploadError');
+        if (!box) return console.warn('uploadError box missing');
+        box.textContent = msg;
+        box.classList.remove('hidden');
+        setTimeout(()=> box.classList.add('hidden'), 15000);
+      } catch(e){ console.error('showUploadError failed', e); }
+    }
+
+    // Upload Functionality
+    const uploadBtn = document.getElementById('uploadBtn');
+    const saveDraftBtn = document.getElementById('saveDraftBtn');
+    
+    uploadBtn.addEventListener('click', async () => {
+      const fileInput = document.getElementById('fileInput');
+      const file = fileInput.files[0];
+      
+      if (!file) {
+        showNotification('Please select a file first!', 'error');
+        return;
+      }
+
+      // Show loading state
+      uploadBtn.disabled = true;
+      uploadBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Uploading...';
+
+      const formData = new FormData();
+      formData.append('file', file);
+
+      try {
+        const res = await fetch('http://localhost:5000/api/upload', {
+          method: 'POST',
+          body: formData
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+          showNotification('File uploaded successfully!', 'success');
+          // Clear the input
+          fileInput.value = '';
+          
+          // Update the project files list
+          const filesList = document.getElementById('projectFilesList');
+          if (filesList) {
+            const fileElement = document.createElement('div');
+            fileElement.className = 'flex items-center justify-between p-2 rounded-md bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700';
+            fileElement.innerHTML = `
+              <div class="flex items-center gap-3">
+                <span class="text-sm font-medium">${data.file.name}</span>
+                <span class="text-xs text-gray-500">(${formatFileSize(data.file.size)})</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <button onclick="previewVideo('${data.file.url}')" class="px-3 py-1 text-xs bg-blue-600 text-white rounded-lg hover:bg-blue-700">View</button>
+                <a href="${data.file.url}" download class="px-3 py-1 text-xs border border-gray-300 rounded-lg hover:bg-gray-50">Download</a>
+              </div>
+            `;
+            filesList.appendChild(fileElement);
+          }
+        } else {
+          showNotification('Upload failed: ' + data.error, 'error');
+        }
+      } catch (err) {
+        console.error('Upload error:', err);
+        showNotification('Upload error — check backend connection!', 'error');
+      } finally {
+        // Reset button state
+        uploadBtn.disabled = false;
+        uploadBtn.innerHTML = '<i class="fas fa-rocket mr-2"></i>Upload Project';
+      }
+    });
+
+    saveDraftBtn.addEventListener('click', () => {
+      const projectData = {
+        title: document.getElementById('projectTitle').value,
+        description: document.getElementById('projectDescription').value,
+        category: document.getElementById('projectCategory').value,
+        tags: document.getElementById('projectTags').value,
+        files: selectedFiles.map(f => ({ name: f.name, size: f.size, type: f.type }))
+      };
+      
+      localStorage.setItem('draftProject', JSON.stringify(projectData));
+      showNotification('Draft saved successfully', 'success');
+    });
+
+    async function startUpload() {
+      if (!selectedFiles.length) {
+        showNotification('No files to upload', 'error');
+        return;
+      }
+
+      // require login
+      const token = API.getToken();
+      if (!token) { showNotification('You must be logged in to upload', 'error'); window.location.href = '/frontend/login.html'; return; }
+
+      uploadProgress.classList.remove('hidden');
+      createBtn.disabled = true;
+      createBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Uploading...';
+
+      // Create project first
+      const title = document.getElementById('projectTitle').value || 'Untitled Project';
+      const description = document.getElementById('projectDescription').value || '';
+      const category = document.getElementById('projectCategory').value || '';
+      const tags = document.getElementById('projectTags').value || '';
+
+      const projectRes = await API.fetch('/api/projects', { method: 'POST', body: JSON.stringify({ title, description, category, tags }) });
+      if (!projectRes.ok) {
+        showNotification('Failed to create project: ' + (projectRes.data?.error || projectRes.status), 'error');
+        createBtn.disabled = false;
+        createBtn.innerHTML = '<i class="fas fa-rocket mr-2"></i>Upload Project';
+        return;
+      }
+
+      const project = projectRes.data.project;
+
+      // overall progress tracking
+      const totalSize = selectedFiles.reduce((s, f) => s + f.size, 0);
+      let uploadedBytes = 0;
+
+      // clear per-file progress list
+      fileProgressList.innerHTML = '';
+
+      for (let i = 0; i < selectedFiles.length; i++) {
+        try {
+          await uploadFileReal(selectedFiles[i], project.id, (loaded) => {
+            // loaded = bytes uploaded for this file so far
+            // compute overall
+            // Note: we approximate by summing loaded bytes; on incremental callbacks we'll update uploadedBytes as delta
+            // For simplicity, recalc overall percent based on previously uploaded + loaded for current
+            const prevUploaded = Array.from(fileProgressList.children).slice(0, i).reduce((acc, el) => {
+              const txt = el.querySelector('span:last-child').dataset.completedBytes || '0';
+              return acc + Number(txt);
+            }, 0);
+            const overall = Math.round(((prevUploaded + loaded) / totalSize) * 100);
+            overallProgress.textContent = `${overall}%`;
+            overallProgressBar.style.width = `${overall}%`;
+          });
+        } catch (err) {
+          console.error('Upload failed for file', selectedFiles[i].name, err);
+          showNotification('Upload failed for ' + selectedFiles[i].name, 'error');
+        }
+      }
+
+      overallProgress.textContent = '100%';
+      overallProgressBar.style.width = '100%';
+
+      // refresh project files
+      try {
+        const filesRes = await API.fetch(`/api/projects/${project.id}/files`);
+        if (filesRes.ok) {
+          const list = document.getElementById('projectFilesList');
+          if (!filesRes.data.files || filesRes.data.files.length === 0) {
+            list.innerHTML = 'No files uploaded yet.';
+          } else {
+            list.innerHTML = filesRes.data.files.map(f => {
+              const filename = f.filename || f.fileName || f.name || (f.file && f.file.filename) || '';
+              const basePrefix = (API.base && API.base.length) ? API.base.replace(/\/$/, '') : (window.location.origin || '');
+              const url = filename ? (basePrefix + '/uploads/' + filename) : '';
+              const isVideo = /video|mp4|mov|webm|mkv/i.test((f.mimetype || f.originalName || filename) );
+              const viewUrl = filename ? (basePrefix + '/frontend/viewer.html?file=' + encodeURIComponent(filename)) : '';
+              return `
+                <div class="flex items-center justify-between p-2 rounded-md bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700">
+                  <div class="flex items-center gap-3">
+                    <a href="${url || '#'}" target="_blank" class="text-sm font-medium text-blue-600 dark:text-blue-400">${f.originalName || filename || 'untitled'}</a>
+                    <div class="text-xs text-gray-400">(${(f.size/1024/1024).toFixed(2)}MB)</div>
+                  </div>
+                  <div class="relative flex items-center gap-2">
+                    ${isVideo ? `${viewUrl ? `<a class="px-3 py-1 text-xs bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors" href="${viewUrl}" target="_blank"><i class="fas fa-eye mr-1"></i>View</a>` : ''}` : ''}
+                    ${isVideo ? `<button class="file-options-btn p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700" data-url="${url}" data-name="${f.originalName}">
+                      <i class="fas fa-ellipsis-v"></i>
+                    </button>` : ''}
+                    ${isVideo ? `<div class="file-options-menu hidden absolute right-0 mt-2 w-40 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded shadow-lg overflow-hidden z-50">
+                      <button class="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 preview-file">Preview</button>
+                      ${url ? `<a class="w-full block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700" href="${url}" download>Download</a>` : `<button class="w-full text-left px-4 py-2 text-gray-500 cursor-not-allowed">Download (unavailable)</button>`}
+                    </div>` : ''}
+                  </div>
+                </div>
+              `;
+            }).join('');
+            // Sanitize any bad links (some browsers or prior code might render 'undefined')
+            Array.from(list.querySelectorAll('a')).forEach(a => {
+              try {
+                const h = a.getAttribute('href');
+                if (!h || h === 'undefined' || /undefined/.test(h)) {
+                  console.warn('Sanitized malformed href on project file link', h, a);
+                  a.setAttribute('href','#');
+                  a.classList.add('text-gray-500');
+                }
+              } catch (e) { console.error(e); }
+            });
+            // Prevent clicks on invalid download anchors
+            list.querySelectorAll('a[download], a').forEach(a => {
+              a.addEventListener('click', (ev) => {
+                const h = a.getAttribute('href');
+                if (!h || h === '#' || /undefined/.test(h)) { ev.preventDefault(); showUploadError('File not available for download'); }
+              });
+            });
+            // attach delegation for options
+            list.querySelectorAll('.file-options-btn').forEach(btn => {
+              btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const menu = btn.parentElement.querySelector('.file-options-menu');
+                if (!menu) return;
+                // close other menus
+                document.querySelectorAll('.file-options-menu').forEach(m => { if (m !== menu) m.classList.add('hidden'); });
+                menu.classList.toggle('hidden');
+              });
+            });
+            // preview handler delegation
+            list.querySelectorAll('.preview-file').forEach(b => b.addEventListener('click', (e) => {
+              e.stopPropagation();
+              const btn = e.currentTarget;
+              const container = btn.closest('.relative');
+              // try dataset.url first, otherwise find anchor
+              const url = container.querySelector('.file-options-btn')?.dataset.url || container.querySelector('a[download]')?.href || container.querySelector('a')?.href;
+              if (!url) { showUploadError('Preview unavailable'); return; }
+              const w = window.open('', '_blank');
+              w.document.write(`<video src="${url}" controls autoplay style="width:100%;height:100%"></video>`);
+              w.document.title = container.querySelector('.file-options-btn')?.dataset.name || 'Preview';
+            }));
+          }
+        }
+      } catch (e) { console.error('Failed to refresh files', e); }
+
+      showNotification('Upload completed successfully!', 'success');
+      uploadProgress.classList.add('hidden');
+      createBtn.disabled = false;
+      createBtn.innerHTML = '<i class="fas fa-rocket mr-2"></i>Upload Project';
+      selectedFiles = [];
+      renderFileList();
+      document.getElementById('projectTitle').value = '';
+      document.getElementById('projectDescription').value = '';
+      document.getElementById('projectCategory').value = '';
+      document.getElementById('projectTags').value = '';
+    }
+
+    function uploadFileReal(file, projectId, onProgress) {
+      return new Promise((resolve, reject) => {
+        const fileProgressElement = document.createElement('div');
+        fileProgressElement.className = 'text-xs mb-2';
+        fileProgressElement.innerHTML = `
+          <div class="flex justify-between mb-1">
+            <span>${file.name}</span>
+            <span data-completed-bytes="0">0%</span>
+          </div>
+          <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1">
+            <div class="bg-gradient-to-r from-green-500 to-emerald-500 h-1 rounded-full transition-all duration-300" style="width: 0%"></div>
+          </div>
+        `;
+        fileProgressList.appendChild(fileProgressElement);
+
+        const progressBar = fileProgressElement.querySelector('div > div');
+        const progressText = fileProgressElement.querySelector('span:last-child');
+
+        const form = new FormData();
+        form.append('file', file, file.name);
+        form.append('projectId', projectId);
+
+        const xhr = new XMLHttpRequest();
+        const url = (API.base || '') + '/api/upload';
+        console.log('uploadFileReal: sending', file.name, 'to', url, 'projectId', projectId);
+        xhr.open('POST', url);
+        const token = API.getToken(); if (token) xhr.setRequestHeader('Authorization', 'Bearer ' + token);
+
+        // 5 minute timeout to avoid infinite hang for large uploads
+        xhr.timeout = 5 * 60 * 1000;
+
+        xhr.upload.onprogress = (ev) => {
+          if (ev.lengthComputable) {
+            const percent = Math.round((ev.loaded / ev.total) * 100);
+            progressBar.style.width = percent + '%';
+            progressText.textContent = percent + '%';
+            // store completed bytes for overall calc
+            progressText.dataset.completedBytes = ev.loaded;
+            if (typeof onProgress === 'function') onProgress(ev.loaded);
+          }
+        };
+
+        xhr.ontimeout = () => {
+          const msg = `Upload timed out for ${file.name}`;
+          console.error(msg);
+          showUploadError(msg);
+          reject(new Error(msg));
+        };
+
+        xhr.onload = function () {
+          console.log('uploadFileReal.onload', xhr.status, xhr.responseText && xhr.responseText.substring(0,200));
+          if (xhr.status >= 200 && xhr.status < 300) {
+            try { const parsed = JSON.parse(xhr.responseText || '{}');
+              progressBar.style.width = '100%';
+              progressText.textContent = '✓ Complete';
+              progressText.dataset.completedBytes = file.size;
+              resolve(parsed);
+            } catch (e) {
+              console.warn('upload response not JSON', xhr.responseText);
+              progressBar.style.width = '100%';
+              progressText.textContent = '✓ Complete';
+              progressText.dataset.completedBytes = file.size;
+              resolve({ raw: xhr.responseText });
+            }
+          } else {
+            const body = xhr.responseText || `status ${xhr.status}`;
+            const msg = `Upload failed for ${file.name}: ${xhr.status} - ${body}`;
+            console.error(msg);
+            showUploadError(msg);
+            reject(new Error(msg));
+          }
+        };
+
+        xhr.onerror = function (e) {
+          const msg = `Network error during upload of ${file.name}`;
+          console.error(msg, e);
+          showUploadError(msg);
+          reject(new Error(msg));
+        };
+
+        xhr.send(form);
+      });
+    }
+
+    // Enhanced Comments System
+    const postComment = document.getElementById('postComment');
+    const comments = document.getElementById('comments');
+    
+    postComment.addEventListener('click', () => {
+      const time = document.getElementById('commentTime').value || '00:00';
+      const text = document.getElementById('commentText').value || '';
+      
+      if (!text.trim()) {
+        showNotification('Please add a comment first', 'error');
+        return;
+      }
+      
+      const commentElement = document.createElement('div');
+      commentElement.className = 'border rounded-lg p-4 bg-white dark:bg-gray-800 animate-fadeInUp';
+      commentElement.innerHTML = `
+        <div class="flex justify-between items-start mb-2">
+          <div class="flex items-center gap-2">
+            <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white text-xs font-bold">@</div>
+            <div>
+              <div class="font-medium text-sm">@you</div>
+              <div class="text-xs text-gray-500">${new Date().toLocaleString()}</div>
+            </div>
+          </div>
+          <div class="text-xs text-gray-500 font-mono bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">${time}</div>
+        </div>
+        <div class="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">${text}</div>
+        <div class="flex gap-4 mt-3 text-xs text-gray-500">
+          <button class="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+            <i class="fas fa-thumbs-up mr-1"></i>Like
+          </button>
+          <button class="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+            <i class="fas fa-reply mr-1"></i>Reply
+          </button>
+          <button class="hover:text-red-600 dark:hover:text-red-400 transition-colors">
+            <i class="fas fa-flag mr-1"></i>Report
+          </button>
+        </div>
+      `;
+      
+      comments.prepend(commentElement);
+      document.getElementById('commentText').value = '';
+      document.getElementById('commentTime').value = '';
+      
+      showNotification('Comment posted successfully', 'success');
+    });
+
+    function showComments() {
+      document.getElementById('comments').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // Button Functionality
+    document.getElementById('uploadBtn').addEventListener('click', () => {
+      document.getElementById('uploader').scrollIntoView({ behavior: 'smooth' });
+    });
+
+    document.getElementById('exploreBtn').addEventListener('click', () => {
+      document.getElementById('projects').scrollIntoView({ behavior: 'smooth' });
+    });
+
+    document.getElementById('signInBtn').addEventListener('click', () => {
+      showNotification('Sign in functionality would be implemented here', 'info');
+    });
+
+    // Utility Functions
+    function formatFileSize(bytes) {
+      if (bytes === 0) return '0 Bytes';
+      const k = 1024;
+      const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+
+    function getFileType(filename) {
+      const ext = filename.split('.').pop().toLowerCase();
+      const types = {
+        'mp4': 'Video', 'mov': 'Video', 'avi': 'Video', 'mkv': 'Video',
+        'blend': '3D Model', 'aep': 'Template', 'psd': 'Image',
+        'png': 'Image', 'webp': 'Image', 'gif': 'Animation'
+      };
+      return types[ext] || 'File';
+    }
+
+    function getFileTypeColor(type) {
+      const colors = {
+        'Video': 'from-red-500 to-pink-500',
+        '3D Model': 'from-blue-500 to-purple-500',
+        'Template': 'from-green-500 to-teal-500',
+        'Image': 'from-yellow-500 to-orange-500',
+        'Animation': 'from-purple-500 to-indigo-500',
+        'File': 'from-gray-500 to-gray-600'
+      };
+      return colors[type] || colors['File'];
+    }
+
+    function getFileTypeIcon(type) {
+      const icons = {
+        'Video': '🎬',
+        '3D Model': '🎨',
+        'Template': '📋',
+        'Image': '🖼️',
+        'Animation': '✨',
+        'File': '📄'
+      };
+      return icons[type] || icons['File'];
+    }
+
+    function showNotification(message, type = 'info') {
+      const notification = document.createElement('div');
+      const colors = {
+        success: 'bg-green-500',
+        error: 'bg-red-500',
+        info: 'bg-blue-500',
+        warning: 'bg-yellow-500'
+      };
+      
+      notification.className = `fixed top-4 right-4 ${colors[type]} text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-fadeInUp`;
+      notification.innerHTML = `
+        <div class="flex items-center gap-2">
+          <i class="fas fa-${type === 'success' ? 'check' : type === 'error' ? 'times' : 'info'}-circle"></i>
+          <span>${message}</span>
+        </div>
+      `;
+      
+      document.body.appendChild(notification);
+      
+      setTimeout(() => {
+        notification.style.opacity = '0';
+        notification.style.transform = 'translateX(100%)';
+        setTimeout(() => notification.remove(), 300);
+      }, 3000);
+    }
+
+    // Load draft on page load
+    window.addEventListener('load', () => {
+      const draft = localStorage.getItem('draftProject');
+      if (draft) {
+        const projectData = JSON.parse(draft);
+        document.getElementById('projectTitle').value = projectData.title || '';
+        document.getElementById('projectDescription').value = projectData.description || '';
+        document.getElementById('projectCategory').value = projectData.category || '';
+        document.getElementById('projectTags').value = projectData.tags || '';
+        
+        if (projectData.files && projectData.files.length > 0) {
+          showNotification('Draft loaded successfully', 'info');
+        }
+      }
+    });
+
+    // Smooth scrolling for navigation links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      });
+    });
+
+    // Add loading animation to buttons
+    document.querySelectorAll('button').forEach(button => {
+      button.addEventListener('click', function() {
+        if (!this.disabled) {
+          this.style.transform = 'scale(0.95)';
+          setTimeout(() => {
+            this.style.transform = 'scale(1)';
+          }, 150);
+        }
+      });
+    });
+
+    // Video Preview Functions
+    function previewVideo(url) {
+      const modal = document.getElementById('videoPreviewModal');
+      const video = document.getElementById('previewVideo');
+      
+      // Set video source
+      video.src = url;
+      
+      // Show modal with animation
+      modal.classList.remove('hidden');
+      modal.classList.add('animate-fadeIn');
+      
+      // Auto play video
+      video.play().catch(err => console.log('Auto-play prevented:', err));
+      
+      // Add event listener to close on background click
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeVideoPreview();
+      });
+      
+      // Add keyboard listener for escape key
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeVideoPreview();
+      });
+    }
+    
+    function closeVideoPreview() {
+      const modal = document.getElementById('videoPreviewModal');
+      const video = document.getElementById('previewVideo');
+      
+      // Stop video playback
+      video.pause();
+      video.currentTime = 0;
+      
+      // Hide modal
+      modal.classList.add('hidden');
+    }
+
+    // Initialize animations on scroll
+    const observerOptions = {
+      threshold: 0.1,
+      rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('animate-fadeInUp');
+        }
+      });
+    }, observerOptions);
+
+    document.querySelectorAll('section').forEach(section => {
+      observer.observe(section);
+    });
+
+  </script>
+  <script>
+document.addEventListener("DOMContentLoaded", () => {
+  const profileBtn = document.getElementById("profileBtn");
+  const profileMenu = document.getElementById("profileMenu");
+  const userName = document.getElementById("userName");
+  const userEmail = document.getElementById("userEmail");
+  const logoutBtn = document.getElementById("logoutBtn");
+
+  // 🧠 Load logged-in user from localStorage
+  const user = JSON.parse(localStorage.getItem("user"));
+  if (user) {
+    userName.textContent = user.name || "User";
+    userEmail.textContent = user.email || "";
+  } else {
+    userName.textContent = "Guest";
+    userEmail.textContent = "";
+  }
+
+  // 🔽 Toggle dropdown
+  profileBtn.addEventListener("click", () => {
+    profileMenu.classList.toggle("hidden");
+  });
+
+  // 🚪 Logout functionality
+  logoutBtn.addEventListener("click", () => {
+    localStorage.removeItem("user");
+    alert("Logged out successfully!");
+    window.location.href = "login.html";
+  });
+
+  // 👋 Close menu when clicking outside
+  document.addEventListener("click", (e) => {
+    if (!profileBtn.contains(e.target) && !profileMenu.contains(e.target)) {
+      profileMenu.classList.add("hidden");
+    }
+  });
+});
+</script>
+
+<!-- 💬 Comments Modal -->
+<div id="commentsModal" class="hidden fixed inset-0 bg-black bg-opacity-60 flex justify-center items-center z-50">
+  <div class="bg-gray-800 rounded-lg w-96 max-h-[80vh] p-4 flex flex-col text-white">
+    <div class="flex justify-between items-center mb-2">
+      <h2 class="text-lg font-semibold">💬 Comments</h2>
+      <button id="closeComments" class="text-red-400 hover:text-red-600 text-xl font-bold">✖</button>
+    </div>
+    <div id="commentsList" class="flex-1 overflow-y-auto space-y-2 mb-3 bg-gray-700 p-2 rounded"></div>
+    <div class="flex gap-2">
+      <input id="newComment" type="text" placeholder="Write a comment..." 
+        class="flex-1 px-3 py-2 rounded bg-gray-600 text-white border border-gray-500 focus:outline-none">
+      <button id="sendComment" 
+        class="bg-blue-600 hover:bg-blue-700 px-3 py-2 rounded text-white font-semibold">Send</button>
+    </div>
+  </div>
+</div>
+<!-- 📝 Feedback Modal -->
+<div id="feedbackModal" class="hidden fixed inset-0 bg-black bg-opacity-60 flex justify-center items-center z-50">
+  <div class="bg-gray-800 rounded-lg w-96 p-5 flex flex-col text-white">
+    <div class="flex justify-between items-center mb-3">
+      <h2 class="text-lg font-semibold">📝 Leave Feedback</h2>
+      <button id="closeFeedback" class="text-red-400 hover:text-red-600 text-xl font-bold">✖</button>
+    </div>
+
+    <div class="flex flex-col gap-3">
+      <label class="text-sm text-gray-300">Rating:</label>
+      <select id="feedbackRating" class="bg-gray-700 p-2 rounded text-white">
+        <option value="">Select rating</option>
+        <option value="5">⭐⭐⭐⭐⭐ Excellent</option>
+        <option value="4">⭐⭐⭐⭐ Great</option>
+        <option value="3">⭐⭐⭐ Good</option>
+        <option value="2">⭐⭐ Fair</option>
+        <option value="1">⭐ Poor</option>
+      </select>
+
+      <textarea id="feedbackText" placeholder="Write your feedback..." rows="3"
+        class="bg-gray-700 p-2 rounded text-white resize-none"></textarea>
+    </div>
+
+    <button id="sendFeedback" class="mt-4 bg-yellow-600 hover:bg-yellow-700 px-4 py-2 rounded font-semibold">
+      Submit Feedback
+    </button>
+  </div>
+</div>
+
+
+</body>
+</html>
